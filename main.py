@@ -32,6 +32,13 @@ def load_tf_model():
     return model
 
 def vizz(binary_predictions, file):
+    explode = (0.1, 0.1, 0.1, 0.1)
+    explode2=(0.1,0.2,0.1)
+    st.write('Anomaly Analysis Report (PIE-GRAPH)')
+    fig, ax1 = plt.subplots()
+    ax1.pie(binary_predictions.value_counts(), labels=binary_predictions.value_counts().index, autopct="%1.1f%%", startangle=90, explode=explode)
+    st.pyplot(fig)
+
     unique_categories = file["categories"].unique()
     for category in unique_categories:
         category_data = file[file["categories"] == category]
@@ -41,7 +48,7 @@ def vizz(binary_predictions, file):
         st.write(f"### {category} - Protocol Distribution")
         protocol_counts = category_data["protocol_type"].value_counts()
         fig1, ax1 = plt.subplots()
-        ax1.pie(protocol_counts, labels=protocol_counts.index, autopct="%1.1f%%", startangle=90)
+        ax1.pie(protocol_counts, labels=protocol_counts.index, autopct="%1.1f%%", startangle=90,explode=explode2)
         st.pyplot(fig1)
         st.write("This pie chart shows the distribution of network protocols in the dataset.")
 
@@ -64,8 +71,9 @@ def main():
         preprocessed_data = preprocessed_data.astype(np.float32)
         y_pred_test = model.predict(preprocessed_data, batch_size=100)
         binary_predictions = process_pred_data(y_pred_test, file)
-        st.write(file.head(10))
         vizz(binary_predictions, file)
+        st.write('Here is the list of all the networks marked with the category of its attack')
+        st.write(file)
 
 if __name__ == "__main__":
     main()
